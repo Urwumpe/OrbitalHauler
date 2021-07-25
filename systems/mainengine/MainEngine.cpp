@@ -35,3 +35,13 @@ void MainEngine::init() {
 	vessel->AddExhaust(thrustHandle, 8, 1, pos, dir * -1);
 
 }
+
+double MainEngine::GetChamberPressure() const {
+	//TODO Implement me
+	return -1.0;
+}
+
+double MainEngine::GetNeutronFlux() const {
+	//TODO Implement me
+	return 0.0;
+}
