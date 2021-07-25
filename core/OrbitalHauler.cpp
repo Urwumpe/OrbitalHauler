@@ -50,8 +50,15 @@ void OrbitalHauler::clbkSetClassCaps(FILEHANDLE cfg) {
 	Olog::setLogLevelFromFile(cfg);
 	Olog::info("Log level set to %i", Olog::loglevel);
 
+	//Define propellant resources in the order how they are read in the scenario file:
+	for (unsigned int i = 0; i < TUG_NUMBER_LH2_TANKS; ++i) {
+		phLH2[i] = CreatePropellantResource(TUG_LH2TANK_MAXIMUM_MASS);
+	}
+	phLO2 = CreatePropellantResource(TUG_LO2TANK_MAXIMUM_MASS);
+	phLH2Sump = CreatePropellantResource(500.0);
+
 	// Initialise vessel systems
-	systems.push_back(new MainEngine(this));
+	systems.push_back(new MainEngine(this, phLH2Sump, phLO2));
 	systems.push_back(new ReactionControlSystem(this));
 	systems.push_back(new DockPort(this));
 

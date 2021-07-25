@@ -4,7 +4,12 @@
 #include "core/OrbitalHauler.h"
 
 
-MainEngine::MainEngine(OrbitalHauler* vessel) : VesselSystem(vessel) {}
+MainEngine::MainEngine(OrbitalHauler* vessel, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2) : VesselSystem(vessel) {
+	mode = LANTR_MODE_OFF;
+	this->phLH2 = phLH2;
+	this->phLO2 = phLO2;
+}
+
 MainEngine::~MainEngine() {}
 
 
@@ -14,7 +19,7 @@ void MainEngine::init() {
 	// Create the propellant tank.
 	// TODO: If we're going to do anything complex with tanks, they should probably become an own VesselSystem instance.
 	double propMass = 20000;
-	PROPELLANT_HANDLE propHandle = vessel->CreatePropellantResource(propMass);
+	
 	
 	// Create the thruster
 	// TODO: Some of this should be configurable in the CFG.
