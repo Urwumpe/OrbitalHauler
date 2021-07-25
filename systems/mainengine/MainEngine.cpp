@@ -29,7 +29,7 @@ void MainEngine::init() {
 	double thrust = 67000;
 	double isp = 9221;
 	
-	THRUSTER_HANDLE thrustHandle = vessel->CreateThruster(pos, dir, thrust, propHandle, isp);
+	THRUSTER_HANDLE thrustHandle = vessel->CreateThruster(pos, dir, thrust, phLH2, isp);
 
 	vessel->CreateThrusterGroup(&thrustHandle, 1, THGROUP_MAIN);
 	vessel->AddExhaust(thrustHandle, 8, 1, pos, dir * -1);
