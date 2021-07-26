@@ -4,7 +4,15 @@
 #include "core/OrbitalHauler.h"
 
 
-MainEngine::MainEngine(OrbitalHauler* vessel, LANTRConfig config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2) : VesselSystem(vessel) {
+LANTRConfig::LANTRConfig() {
+	controlDrumAbsorptionEffect = 0.1;
+	controlDrumReflectionEffect = 1.5;
+	maxReactorChamberPressure = 15E6;
+	initialFuelEnrichment = 0.5;
+	maxBraytonCyclePressure = LANTR_BRAYTON_CYCLE_MAX_PRESSURE;
+}
+
+MainEngine::MainEngine(OrbitalHauler* vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2) : VesselSystem(vessel), configuration(config) {
 	mode = LANTR_MODE_OFF;
 	this->phLH2 = phLH2;
 	this->phLO2 = phLO2;

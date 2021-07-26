@@ -13,11 +13,46 @@ class LANTRConfig {
 	double initialFuelEnrichment;
 public:
 	LANTRConfig();
-	double MaxBraytonCyclePressure() const;
-	double MaxReactorChamberPressure() const;
-	double ControlDrumAbsorptionEffect() const;
-	double ControlDrumReflectionEffect() const;
-	double InitialFuelEnrichment() const;
+
+	inline double MaxBraytonCyclePressure() const {
+		return maxBraytonCyclePressure;
+	}
+
+	inline double MaxReactorChamberPressure() const {
+		return maxReactorChamberPressure;
+	}
+
+	inline double ControlDrumAbsorptionEffect() const {
+		return controlDrumAbsorptionEffect;
+	}
+
+	inline double ControlDrumReflectionEffect() const {
+		return controlDrumReflectionEffect;
+	}
+
+	inline double InitialFuelEnrichment() const {
+		return initialFuelEnrichment;
+	}
+
+	inline void SetMaxBraytonCyclePressure(double max) {
+		maxBraytonCyclePressure = max;
+	}
+
+	inline void SetMaxReactorChamberPressure(double max) {
+		maxReactorChamberPressure = max;
+	}
+
+	inline void SetControlDrumAbsorptionEffect(double effect) {
+		controlDrumAbsorptionEffect = effect;
+	}
+
+	inline void SetControlDrumReflectionEffect(double effect) {
+		controlDrumReflectionEffect = effect;
+	}
+
+	inline void SetInitialFuelEnrichment(double enr) {
+		initialFuelEnrichment = enr;
+	}
 };
 
 /* Maximum pressure at which the Brayton cycle hardware operates. 
@@ -99,6 +134,7 @@ class MainEngine :
 	/* Propellant resource for LO2, engine consumes this only for propulsion.
 	 */
 	PROPELLANT_HANDLE phLO2;
+	const LANTRConfig &configuration;
 public:
 	MainEngine(OrbitalHauler *vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2);
 	~MainEngine();
@@ -125,5 +161,8 @@ public:
 	 * TBD - sensor limit
 	 */
 	double GetNeutronFlux() const;
+	/* Get the coefficient of criticality (alpha). Should be around 1.0 to be stable.
+	*/
+	double GetCriticality() const;
 };
 

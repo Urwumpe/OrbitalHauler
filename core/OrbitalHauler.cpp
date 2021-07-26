@@ -58,7 +58,7 @@ void OrbitalHauler::clbkSetClassCaps(FILEHANDLE cfg) {
 	phLH2Sump = CreatePropellantResource(500.0);
 
 	// Initialise vessel systems
-	systems.push_back(new MainEngine(this, phLH2Sump, phLO2));
+	systems.push_back(new MainEngine(this, LANTRConfig(),  phLH2Sump, phLO2));
 	systems.push_back(new ReactionControlSystem(this));
 	systems.push_back(new DockPort(this));
 
