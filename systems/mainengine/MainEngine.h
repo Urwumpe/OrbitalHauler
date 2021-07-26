@@ -1,9 +1,24 @@
 #pragma once
 
-const int LANTR_MODE_OFF = 0;
-const int LANTR_MODE_ELECTRIC = 1;
-const int LANTR_MODE_NTR = 2;
-const int LANTR_MODE_LANTR = 3;
+const int LANTR_MODE_OFF		= 0;
+const int LANTR_MODE_ELECTRIC	= 100;
+const int LANTR_MODE_NTR		= 200;
+const int LANTR_MODE_LANTR		= 300;
+
+class LANTRConfig {
+	double maxBraytonCyclePressure;
+	double maxReactorChamberPressure;
+	double controlDrumAbsorptionEffect;
+	double controlDrumReflectionEffect;
+	double initialFuelEnrichment;
+public:
+	LANTRConfig();
+	double MaxBraytonCyclePressure() const;
+	double MaxReactorChamberPressure() const;
+	double ControlDrumAbsorptionEffect() const;
+	double ControlDrumReflectionEffect() const;
+	double InitialFuelEnrichment() const;
+};
 
 /* Maximum pressure at which the Brayton cycle hardware operates. 
  * At higher chamber pressure, the valves are closed and the Brayton cycle powered only 
@@ -85,10 +100,15 @@ class MainEngine :
 	 */
 	PROPELLANT_HANDLE phLO2;
 public:
-	MainEngine(OrbitalHauler *vessel, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2);
+	MainEngine(OrbitalHauler *vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2);
 	~MainEngine();
 
 	void init();
+	/*
+	 * calculations based on reactor state
+	 * @sa VesselSystem::preStep 
+	 */
+	virtual void preStep(double simt, double simdt, double mjd);
 
 	/* Read the chamber pressure within the nuclear reactor module. Can be up to 136 atm in the reference.
 	 * Range: [0.0 ... 15 MPa]
