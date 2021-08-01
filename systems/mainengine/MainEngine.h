@@ -139,7 +139,8 @@ public:
 	MainEngine(OrbitalHauler *vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2);
 	~MainEngine();
 
-	void init();
+	void init(EventBroker& eventBroker);
+
 	/*
 	 * calculations based on reactor state
 	 * @sa VesselSystem::preStep 
@@ -164,5 +165,8 @@ public:
 	/* Get the coefficient of criticality (alpha). Should be around 1.0 to be stable.
 	*/
 	double GetCriticality() const;
+
+protected:
+	virtual void receiveEvent(Event_Base* event, EVENTTOPIC topic);
 };
 

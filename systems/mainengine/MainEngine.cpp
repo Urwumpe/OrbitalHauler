@@ -1,7 +1,9 @@
 #include "core/Common.h"
-#include "systems/VesselSystem.h"
 #include "OpStdLibs.h"
 #include "OpForwardDeclare.h"
+#include "event/Events.h"
+
+#include "systems/VesselSystem.h"
 #include "model/ThrusterConfig.h"
 #include "MainEngine.h"
 #include "core/OrbitalHauler.h"
@@ -24,8 +26,12 @@ MainEngine::MainEngine(OrbitalHauler* vessel, const LANTRConfig &config, PROPELL
 MainEngine::~MainEngine() {}
 
 
-void MainEngine::init() {
+void MainEngine::init(EventBroker& eventBroker) {
 	Olog::trace("Main engine init");
+
+	// create event subscriptions
+	eventBroker.subscribe((EventSubscriber*)this, EVENTTOPIC::GENERAL);
+
 
 	// Create the propellant tank.
 
@@ -57,4 +63,11 @@ double MainEngine::GetChamberPressure() const {
 double MainEngine::GetNeutronFlux() const {
 	//TODO Implement me
 	return 0.0;
+}
+
+void MainEngine::receiveEvent(Event_Base* event, EVENTTOPIC topic) {
+
+	if (*event == EVENTTYPE::SIMULATIONSTARTEDEVENT) {
+		Olog::info("Main engine received sim started event!");
+	}
 }
