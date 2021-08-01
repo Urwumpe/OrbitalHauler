@@ -3,12 +3,19 @@
 #define ORBITER_MODULE
 
 #include "core/Common.h"
+#include "OpStdLibs.h"
+#include "Oparse.h"
+#include "model/Models.h"
+
 #include "systems/VesselSystem.h"
 #include "systems/mainengine/MainEngine.h"
 #include "systems/rcs/ReactionControlSystem.h"
 #include "systems/dockport/DockPort.h"
 
 #include "core/OrbitalHauler.h"
+
+
+using namespace Oparse;
 
 
 
@@ -34,7 +41,9 @@ DLLCLBK void InitModule(HINSTANCE hModule) {
 
 // Vessel class
 
-OrbitalHauler::OrbitalHauler(OBJHANDLE hVessel, int flightmodel) : VESSEL4(hVessel, flightmodel) { }
+OrbitalHauler::OrbitalHauler(OBJHANDLE hVessel, int flightmodel) : VESSEL4(hVessel, flightmodel) { 
+
+}
 
 OrbitalHauler::~OrbitalHauler() {
 	
@@ -48,7 +57,16 @@ OrbitalHauler::~OrbitalHauler() {
 void OrbitalHauler::clbkSetClassCaps(FILEHANDLE cfg) {
 
 	Olog::setLogLevelFromFile(cfg);
-	Olog::info("Log level set to %i", Olog::loglevel);
+
+	// Load vessel config
+	OrbitalHaulerConfig config = OrbitalHaulerConfig();
+	OpModelDef modelDef = config.GetModelDef();
+
+	PARSINGRESULT result = ParseFile(cfg, modelDef, "OrbitalHauler.cfg");
+	if (result.HasErrors()) {
+		Olog::error((char*)result.GetFormattedErrorsForFile().c_str());
+		throw std::runtime_error("Errors in OrbitalHauler config, see log for details!");
+	}
 
 	//Define propellant resources in the order how they are read in the scenario file:
 	for (unsigned int i = 0; i < TUG_NUMBER_LH2_TANKS; ++i) {

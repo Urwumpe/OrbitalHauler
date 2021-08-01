@@ -1,5 +1,8 @@
 #include "core/Common.h"
 #include "systems/VesselSystem.h"
+#include "OpStdLibs.h"
+#include "OpForwardDeclare.h"
+#include "model/ThrusterConfig.h"
 #include "MainEngine.h"
 #include "core/OrbitalHauler.h"
 
