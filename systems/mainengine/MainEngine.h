@@ -139,12 +139,7 @@ public:
 	MainEngine(OrbitalHauler *vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2);
 	~MainEngine();
 
-	void init();
-	/*
-	 * calculations based on reactor state
-	 * @sa VesselSystem::preStep 
-	 */
-	virtual void preStep(double simt, double simdt, double mjd);
+	void init(EventBroker& eventBroker);
 
 	/* Read the chamber pressure within the nuclear reactor module. Can be up to 136 atm in the reference.
 	 * Range: [0.0 ... 15 MPa]
@@ -164,5 +159,10 @@ public:
 	/* Get the coefficient of criticality (alpha). Should be around 1.0 to be stable.
 	*/
 	double GetCriticality() const;
+
+protected:
+	virtual void receiveEvent(Event_Base* event, EVENTTOPIC topic);
+
+	
 };
 
