@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OrbitalHauler", "OrbitalHauler.vcxproj", "{D72CE498-6530-4883-91C8-93ADBC85F6BC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1} = {52F88168-C6B6-42B1-8672-B9332D0CA6D1}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Olog", "..\Olog\Olog.vcxproj", "{52F88168-C6B6-42B1-8672-B9332D0CA6D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +32,16 @@ Global
 		{D72CE498-6530-4883-91C8-93ADBC85F6BC}.Release|x64.Build.0 = Release|x64
 		{D72CE498-6530-4883-91C8-93ADBC85F6BC}.Release|x86.ActiveCfg = Release|Win32
 		{D72CE498-6530-4883-91C8-93ADBC85F6BC}.Release|x86.Build.0 = Release|Win32
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1}.Debug|x64.ActiveCfg = Debug|Win32
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1}.Debug|x86.ActiveCfg = Debug|Win32
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1}.Debug|x86.Build.0 = Debug|Win32
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1}.DebugD3D9|x64.ActiveCfg = Debug|Win32
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1}.DebugD3D9|x64.Build.0 = Debug|Win32
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1}.DebugD3D9|x86.ActiveCfg = Debug|Win32
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1}.DebugD3D9|x86.Build.0 = Debug|Win32
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1}.Release|x64.ActiveCfg = Release|Win32
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1}.Release|x86.ActiveCfg = Release|Win32
+		{52F88168-C6B6-42B1-8672-B9332D0CA6D1}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
