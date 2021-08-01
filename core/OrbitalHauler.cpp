@@ -6,6 +6,7 @@
 #include "OpStdLibs.h"
 #include "Oparse.h"
 #include "model/Models.h"
+#include "event/Events.h"
 
 #include "systems/VesselSystem.h"
 #include "systems/mainengine/MainEngine.h"
@@ -81,8 +82,21 @@ void OrbitalHauler::clbkSetClassCaps(FILEHANDLE cfg) {
 	systems.push_back(new DockPort(this));
 
 	for (const auto& it : systems) {
-		it->init();
+		it->init(eventBroker);
 	}
+
+	// Event will be propagated in first clbkPreStep
+	eventBroker.publish(EVENTTOPIC::GENERAL, new SimpleEvent(EVENTTYPE::SIMULATIONSTARTEDEVENT));
+
+}
+
+
+void OrbitalHauler::clbkPreStep(double  simt, double  simdt, double  mjd) {
+	
+	// Propagate due events.
+	// This should always remain at the beginning of clbkPreStep and never be called anywhere else.
+	eventBroker.processEvents();
+
 }
 
 

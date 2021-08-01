@@ -5,10 +5,11 @@
 class OrbitalHauler;
 
 #include "orbitersdk.h"
-#include "WinDef.h"
+#include <windows.h>
 #include <string>
 #include <vector>
 #include <sstream>
+#include <map>
 
 
 #include "Olog.h"
