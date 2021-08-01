@@ -134,6 +134,10 @@ class MainEngine :
 	/* Propellant resource for LO2, engine consumes this only for propulsion.
 	 */
 	PROPELLANT_HANDLE phLO2;
+
+	THRUSTER_HANDLE thNTR;
+	THRUSTER_HANDLE thLANTR;
+
 	const LANTRConfig &configuration;
 public:
 	MainEngine(OrbitalHauler *vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2);

@@ -44,10 +44,11 @@ void MainEngine::init(EventBroker& eventBroker) {
 	double thrust = 67000;
 	double isp = 9221;
 	
-	THRUSTER_HANDLE thrustHandle = vessel->CreateThruster(pos, dir, thrust, phLH2, isp);
+	thNTR = vessel->CreateThruster(pos, dir, thrust, phLH2, isp);
+	thLANTR = vessel->CreateThruster(pos, dir, thrust, phLH2, isp);
 
-	vessel->CreateThrusterGroup(&thrustHandle, 1, THGROUP_MAIN);
-	vessel->AddExhaust(thrustHandle, 8, 1, pos, dir * -1);
+	vessel->CreateThrusterGroup(&thNTR, 1, THGROUP_MAIN);
+	vessel->AddExhaust(thNTR, 8, 1, pos, dir * -1);
 
 }
 
