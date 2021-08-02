@@ -25,6 +25,13 @@ const double LANTR_BRAYTON_CYCLE_MAX_PRESSURE = 5.0E6;
  * Wet GH2 vapor can be provided to an attitude control system before passing through the radiators.
  * O2 mixture ratio in LANTR mode COULD be variable and controlled by the crew within a small range to control fuel economy (higher thrust vs lower ISP)
  * Optimal mixture ratio for lunar missions is approx. at MR=3.0.
+ * 
+ * The amount of neutrons generated inside core should be proportional to the thermal power generation in Watt.
+ * Control drum position should weakly influence the amount of neutrons escaping the core.
+ * The amount of neutrons absorbed should depend on a function of control drum position and H2 (moderator) flow.
+ * Absorption also depends on temperature (~sqrt(T/20°))
+ * The amount of neutrons absorbed by the fuel is the utilization factor, this should be a function of reactor design and fuel burn down.
+ * The hotter the hydrogen, the weaker it is as absorber or moderator, reducing its cross section and the reaction rate.
  */
 class MainEngine :
     public VesselSystem
