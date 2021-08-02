@@ -53,6 +53,7 @@ void MainEngine::init(EventBroker& eventBroker) {
 }
 
 void MainEngine::preStep(double simt, double simdt, double mjd) {
+	//Use Newtons Law of cooling for calculating the heat transfers
 
 }
 
