@@ -1,59 +1,11 @@
 #pragma once
 
+#include "model/ThrusterConfig.h"
+
 const int LANTR_MODE_OFF		= 0;
 const int LANTR_MODE_ELECTRIC	= 100;
 const int LANTR_MODE_NTR		= 200;
 const int LANTR_MODE_LANTR		= 300;
-
-class LANTRConfig {
-	double maxBraytonCyclePressure;
-	double maxReactorChamberPressure;
-	double controlDrumAbsorptionEffect;
-	double controlDrumReflectionEffect;
-	double initialFuelEnrichment;
-public:
-	LANTRConfig();
-
-	inline double MaxBraytonCyclePressure() const {
-		return maxBraytonCyclePressure;
-	}
-
-	inline double MaxReactorChamberPressure() const {
-		return maxReactorChamberPressure;
-	}
-
-	inline double ControlDrumAbsorptionEffect() const {
-		return controlDrumAbsorptionEffect;
-	}
-
-	inline double ControlDrumReflectionEffect() const {
-		return controlDrumReflectionEffect;
-	}
-
-	inline double InitialFuelEnrichment() const {
-		return initialFuelEnrichment;
-	}
-
-	inline void SetMaxBraytonCyclePressure(double max) {
-		maxBraytonCyclePressure = max;
-	}
-
-	inline void SetMaxReactorChamberPressure(double max) {
-		maxReactorChamberPressure = max;
-	}
-
-	inline void SetControlDrumAbsorptionEffect(double effect) {
-		controlDrumAbsorptionEffect = effect;
-	}
-
-	inline void SetControlDrumReflectionEffect(double effect) {
-		controlDrumReflectionEffect = effect;
-	}
-
-	inline void SetInitialFuelEnrichment(double enr) {
-		initialFuelEnrichment = enr;
-	}
-};
 
 /* Maximum pressure at which the Brayton cycle hardware operates. 
  * At higher chamber pressure, the valves are closed and the Brayton cycle powered only 
@@ -71,6 +23,8 @@ const double LANTR_BRAYTON_CYCLE_MAX_PRESSURE = 5.0E6;
  * 
  * O2 tank can be used for resupplying ECLSS tanks.
  * Wet GH2 vapor can be provided to an attitude control system before passing through the radiators.
+ * O2 mixture ratio in LANTR mode COULD be variable and controlled by the crew within a small range to control fuel economy (higher thrust vs lower ISP)
+ * Optimal mixture ratio for lunar missions is approx. at MR=3.0.
  */
 class MainEngine :
     public VesselSystem
