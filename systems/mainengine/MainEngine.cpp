@@ -7,8 +7,13 @@
 #include "MainEngine.h"
 #include "core/OrbitalHauler.h"
 
+
+vector<NeutronReaction> MainEngine::neutronReactions;
+
+
 MainEngine::MainEngine(OrbitalHauler* vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2) : VesselSystem(vessel), configuration(config) {
-	mode = LANTR_MODE_OFF;
+	targetMode = LANTR_MODE_OFF;
+	currentMode = LANTR_MODE_OFF;
 	this->phLH2 = phLH2;
 	this->phLO2 = phLO2;
 }
@@ -43,16 +48,35 @@ void MainEngine::init(EventBroker& eventBroker) {
 }
 
 void MainEngine::preStep(double simt, double simdt, double mjd) {
+	doAbsorptionReactions(simt, simdt);
+	doDecayReactions(simt, simdt);
 	//Use Newtons Law of cooling for calculating the heat transfers
+	
+}
+
+void MainEngine::doAbsorptionReactions(double simt, double simdt) {
+	//Calculate what happens to neutrons absorbed inside the fuel rods.
+	//1. How many hit U235 atoms?
+	//2. How many hit Xenon? etc.
+	//3. Only calculate the changes in the atom population inside the fuels rods by absorbtion.
+	//4. Decay and fission reactions are handled in another function.
+	//5. Absorption of neutrons increases the internal energy of the fuel.
+	//6. Also calculate the absorption of neutrons hitting the control drums. This only heats the control drums.
+	//7. The control drums slowly age over time and become less efficient and corroded.
+}
+
+void MainEngine::doDecayReactions(double simt, double simdt) {
+	//Decay elements in fuel pellets and control drums.
+	//(Maybe include other materials in the core later)
 
 }
 
-double MainEngine::GetChamberPressure() const {
+double MainEngine::getChamberPressure() const {
 	//TODO Implement me
 	return -1.0;
 }
 
-double MainEngine::GetNeutronFlux() const {
+double MainEngine::getNeutronFlux() const {
 	//TODO Implement me
 	return 0.0;
 }

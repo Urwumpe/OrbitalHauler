@@ -7,11 +7,20 @@ const int LANTR_MODE_ELECTRIC	= 100;
 const int LANTR_MODE_NTR		= 200;
 const int LANTR_MODE_LANTR		= 300;
 
+const double RATED_THERMAL_POWER = 555.0E6;
+
 /* Maximum pressure at which the Brayton cycle hardware operates. 
  * At higher chamber pressure, the valves are closed and the Brayton cycle powered only 
  * by the heated LH2 from the gamma shield recuperator. 
  */
-const double LANTR_BRAYTON_CYCLE_MAX_PRESSURE = 5.0E6;
+const double LANTR_BRAYTON_CYCLE_MAX_PRESSURE = 1.0E6;
+
+/* Energy gain by a fission event in Joule (Ws)
+ * Can be used for calculating the neutron flux based on a set power level
+ */
+const double JOULE_PER_FISSION = 3.2E-11;
+
+
 
 /* Implementation of a LANTR type main engine
  * There is no throttle function, since there is no need for it. Engine can be either off or 100% on.
@@ -32,6 +41,22 @@ const double LANTR_BRAYTON_CYCLE_MAX_PRESSURE = 5.0E6;
  * Absorption also depends on temperature (~sqrt(T/20°))
  * The amount of neutrons absorbed by the fuel is the utilization factor, this should be a function of reactor design and fuel burn down.
  * The hotter the hydrogen, the weaker it is as absorber or moderator, reducing its cross section and the reaction rate.
+ * The fuel is made of Uranium Carbide, U2C3, which melts at 2500°C. It decomposes to UC and UC2 crystals above 1800°C and returns to U2C3 when exposed to vacuum at 1400°C (recycling)
+ * The density of the fuel is 13.04 g/cm3. The fuel uses a carbon weight ratio of 6% - 94% of the mass is Uranium, resulting in a mix of U2C3 and few UC grains below 1400°C.
+ * 
+ * 
+ * Possible Failure Mode: Water vapor returning into the combustion chamber after shutdown can result in fuel element erosion, because of an exothermic reaction forming UO2, 
+ * hydrocarbons (methane) and hydrogen, degrading fuel density, damaging the fuel rod surface (cracks!) and impurities in the cooling loop.
+ * 
+ * Gas impurities will form in the H2 loops during reactor operation (0.1% of the gaseous elements produced in the reactor fuel). No idea yet, if this could be a problem in Brayton operation.
+ * During NTR mode operations, theses gasses should be ejected into space with the exhaust. 
+ * These gases are radioactive, making their inclusion in H2 tank pressurization a potential health risk for the crew. A cyclone filter should be enough to reduce this risk.
+ * 
+ * Reaction rate = Number of particles in volume * Neutron Flux * Cross section.
+ * 
+ * Simplification: We control Reactor power directly (assuming a fast computer controls the power based on neutron flux), burnup is linear to reactor power.
+ * In this case, we could ignore most of the neutronics (neutron flux is proportional to power level), the changing composition of the fuel could be derived from the burn up, 
+ * Iodide and Xenon could be estimated from the power level. Xenon level would then just scale the speed how fast power can ramp up.
  */
 class MainEngine :
     public VesselSystem
@@ -42,7 +67,16 @@ class MainEngine :
 	 * LANTR_MODE_NTR		Nuclear thermal rocket mode
 	 * LANTR_MODE_LANTR		O2 injection, requires a higher minimum chamber pressure
 	 */
-	int mode;
+	int targetMode;
+	/*
+	* 
+	*/
+	int currentMode;
+
+	/*
+	* The current thermal power of the reactor, 1.0 = 100% rated power. 
+	*/
+	double thermalPowerLevel;
 
 	/* Controls the flow from the reactor into the nozzle. Opens automatically at 15 MPa (unless stuck).
 	 * 0.0 fully closed, no flow, no thrust
@@ -89,7 +123,11 @@ class MainEngine :
 	/* Temperature of the gamma shield. Heated by engine radiation (IR, neutron flux)
 	 */
 	double tempGammaShield;
-	/* Propellant resource for hydrogen, only consumed for propulsion, ACS or venting.
+
+	/* Number of absorbed neutrons in this timestep
+	 */
+	double neutronsAbsorbed;
+	/* Propellant resource for hydrogen, only consumed for propulsion, ACS or venting
 	 */
 	PROPELLANT_HANDLE phLH2;
 	/* Propellant resource for LO2, engine consumes this only for propulsion.
@@ -112,26 +150,46 @@ public:
 	 */
 	virtual void preStep(double simt, double simdt, double mjd);
 
+	/**
+	* Get the thermal power of the reactor in Watt. 
+	* 
+	* Reference model uses about 500 MW thermal power.
+	*/
+	double getThermalPower() const;
+
 	/* Read the chamber pressure within the nuclear reactor module. Can be up to 136 atm in the reference.
-	 * Range: [0.0 ... 15 MPa]
+	 * Range: [0.0 ... 7 MPa]
 	 */
-	double GetChamberPressure() const;
+	double getChamberPressure() const;
+
+
+	/**
+	 * Read the chamber temperature of the reactor coolant. 
+	 * Range: [0.0 ... 2800K]
+	 */
+	double getChamberTemperature() const; 
 	/* Get the position of the nozzle plug valve
 	 * 0.0 - closed
 	 * 1.0 - open
 	 */
-	float GetNozzlePlugValvePosition() const;
+	float getNozzlePlugValvePosition() const;
 	/* Measurement of the neutron flux towards the gamma shield as measurement of the reactor reaction rate.
 	 * 0.0 - minimum measurement, likely damaged sensor
 	 * TBD - maximum nominal power level
 	 * TBD - sensor limit
 	 */
-	double GetNeutronFlux() const;
+	double getNeutronFlux() const;
 	/* Get the coefficient of criticality (alpha). Should be around 1.0 to be stable.
 	*/
-	double GetCriticality() const;
+	double getCriticality() const;
 
 protected:
 	virtual void receiveEvent(Event_Base* event, EVENTTOPIC topic);
+	void createDefaultPropellantLoad();
+
+	void doAbsorptionReactions(double simt, double simdt);
+	void doDecayReactions(double simt, double simdt);
+
+	
 };
 
