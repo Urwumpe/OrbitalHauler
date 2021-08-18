@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/ThrusterConfig.h"
+#include <cmath>
 
 const int LANTR_MODE_OFF		= 0;
 const int LANTR_MODE_ELECTRIC	= 100;
@@ -8,6 +9,11 @@ const int LANTR_MODE_NTR		= 200;
 const int LANTR_MODE_LANTR		= 300;
 
 const double RATED_THERMAL_POWER = 555.0E6;
+const double RATED_PEAK_TEMPERATURE = 2700.0;
+
+const double HEXE_MOLAR_MASS = 40.0;
+//Standard heat capacity of HeXe coolant in J/kg
+const double HEXE_HEATCAPACITY_PER_MASS = 14304.0;		
 
 /* Maximum pressure at which the Brayton cycle hardware operates. 
  * At higher chamber pressure, the valves are closed and the Brayton cycle powered only 
@@ -19,6 +25,12 @@ const double LANTR_BRAYTON_CYCLE_MAX_PRESSURE = 1.0E6;
  * Can be used for calculating the neutron flux based on a set power level
  */
 const double JOULE_PER_FISSION = 3.2E-11;
+const double DETECTOR_SIZE = pow(0.01, 2);
+//Distance from Reactor core center to detector
+const double DETECTOR_DISTANCE = 2.5;
+const double DETECTOR_CONSTANT = DETECTOR_SIZE / pow(DETECTOR_DISTANCE, 2);
+//Create a weak neutron flux with a neutron source
+const double NEUTRON_SOURCE_FLUX = 5.0E9;
 
 
 

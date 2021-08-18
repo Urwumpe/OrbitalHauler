@@ -8,14 +8,13 @@
 #include "core/OrbitalHauler.h"
 
 
-vector<NeutronReaction> MainEngine::neutronReactions;
-
 
 MainEngine::MainEngine(OrbitalHauler* vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2) : VesselSystem(vessel), configuration(config) {
 	targetMode = LANTR_MODE_OFF;
 	currentMode = LANTR_MODE_OFF;
 	this->phLH2 = phLH2;
 	this->phLO2 = phLO2;
+	thermalPowerLevel = 0.0;
 }
 
 MainEngine::~MainEngine() {}
@@ -26,7 +25,7 @@ void MainEngine::init(EventBroker& eventBroker) {
 
 	// create event subscriptions
 	eventBroker.subscribe((EventSubscriber*)this, EVENTTOPIC::GENERAL);
-
+	
 
 	// Create the propellant tank.
 
@@ -65,6 +64,14 @@ void MainEngine::doAbsorptionReactions(double simt, double simdt) {
 	//7. The control drums slowly age over time and become less efficient and corroded.
 }
 
+double MainEngine::getThermalPower() const {
+	return thermalPowerLevel * RATED_THERMAL_POWER;
+}
+
+double MainEngine::getChamberTemperature() const {
+	return 3.0 + thermalPowerLevel * (RATED_PEAK_TEMPERATURE - 3.0);
+}
+
 void MainEngine::doDecayReactions(double simt, double simdt) {
 	//Decay elements in fuel pellets and control drums.
 	//(Maybe include other materials in the core later)
@@ -73,12 +80,13 @@ void MainEngine::doDecayReactions(double simt, double simdt) {
 
 double MainEngine::getChamberPressure() const {
 	//TODO Implement me
-	return -1.0;
+	return 0.0;
 }
 
 double MainEngine::getNeutronFlux() const {
-	//TODO Implement me
-	return 0.0;
+	//Must still get improved a lot
+	//Currently represents prompt neutrons from fuel and neutron source
+	return (2.3 * getThermalPower() / JOULE_PER_FISSION) * DETECTOR_CONSTANT + NEUTRON_SOURCE_FLUX;
 }
 
 void MainEngine::receiveEvent(Event_Base* event, EVENTTOPIC topic) {
