@@ -11,7 +11,7 @@
  */
 enum class EVENTTYPE {
 	SIMULATIONSTARTEDEVENT,
-
+	CHANGEMODEEVENT,
 };
 
 
@@ -22,5 +22,6 @@ enum class EVENTTYPE {
 enum class EVENTTOPIC
 {
 	GENERAL,
+	LANTR,
 
 };

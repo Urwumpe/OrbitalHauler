@@ -1,4 +1,7 @@
 #pragma once
+#include <event/Events.h>
+
+class OrbitalHauler;
 
 class VesselSystem : public EventSubscriber {
 

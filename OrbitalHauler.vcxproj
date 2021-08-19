@@ -219,6 +219,7 @@
     <ClCompile Include="event\EventBroker.cpp" />
     <ClCompile Include="event\Event_Base.cpp" />
     <ClCompile Include="event\Event_Timed.cpp" />
+    <ClCompile Include="mfds\LANTRMFD.cpp" />
     <ClCompile Include="model\ThrusterConfig.cpp" />
     <ClCompile Include="model\OrbitalHaulerConfig.cpp" />
     <ClCompile Include="systems\dockport\DockPort.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="event\EventTypes.h" />
     <ClInclude Include="event\Event_Base.h" />
     <ClInclude Include="event\Event_Timed.h" />
+    <ClInclude Include="mfds\LANTRMFD.h" />
     <ClInclude Include="model\Models.h" />
     <ClInclude Include="model\ThrusterConfig.h" />
     <ClInclude Include="model\OrbitalHaulerConfig.h" />

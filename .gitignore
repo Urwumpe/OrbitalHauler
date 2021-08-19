@@ -3,3 +3,6 @@
 /DebugD3D9
 /.vs
 OrbitalHauler.vcxproj.user
+/lib/Oparse_Debug.idb
+/lib/Oparse_Debug.lib
+/lib/Oparse_Debug.pdb

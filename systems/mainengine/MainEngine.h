@@ -1,7 +1,11 @@
 #pragma once
 
-#include "model/ThrusterConfig.h"
+using namespace std;
+
 #include <cmath>
+#include "model/ThrusterConfig.h"
+#include "systems/VesselSystem.h"
+#include "event/Events.h"
 
 const int LANTR_MODE_OFF		= 0;
 const int LANTR_MODE_ELECTRIC	= 100;
@@ -32,7 +36,7 @@ const double DETECTOR_CONSTANT = DETECTOR_SIZE / pow(DETECTOR_DISTANCE, 2);
 //Create a weak neutron flux with a neutron source
 const double NEUTRON_SOURCE_FLUX = 5.0E9;
 
-
+class OrbitalHauler;
 
 /* Implementation of a LANTR type main engine
  * There is no throttle function, since there is no need for it. Engine can be either off or 100% on.

@@ -14,6 +14,7 @@
 #include "systems/dockport/DockPort.h"
 
 #include "core/OrbitalHauler.h"
+#include "mfds/LANTRMFD.h"
 
 
 using namespace Oparse;
@@ -43,7 +44,7 @@ DLLCLBK void InitModule(HINSTANCE hModule) {
 // Vessel class
 
 OrbitalHauler::OrbitalHauler(OBJHANDLE hVessel, int flightmodel) : VESSEL4(hVessel, flightmodel) { 
-
+	registerPowerplantMFD();
 }
 
 OrbitalHauler::~OrbitalHauler() {
@@ -53,6 +54,17 @@ OrbitalHauler::~OrbitalHauler() {
 		delete it;
 	}
 
+}
+
+void OrbitalHauler::registerPowerplantMFD() {
+	static char* name = "POWERPLANT";
+	MFDMODESPECEX spec;
+	spec.name = name;
+	spec.key = OAPI_KEY_P;
+	spec.context = NULL;
+	spec.msgproc = LANTRMFD::MsgProc;
+	Olog::info("Registering Powerplant MFD");
+	RegisterMFDMode(spec);
 }
 
 void OrbitalHauler::clbkSetClassCaps(FILEHANDLE cfg) {
@@ -69,16 +81,12 @@ void OrbitalHauler::clbkSetClassCaps(FILEHANDLE cfg) {
 		throw std::runtime_error("Errors in OrbitalHauler config, see log for details!");
 	}
 
-	//Define propellant resources in the order how they are read in the scenario file:
-	for (unsigned int i = 0; i < TUG_NUMBER_LH2_TANKS; ++i) {
-		phLH2[i] = CreatePropellantResource(TUG_LH2TANK_MAXIMUM_MASS);
-	}
 	phLO2 = CreatePropellantResource(TUG_LO2TANK_MAXIMUM_MASS);
-	phLH2Sump = CreatePropellantResource(500.0);
+	phLH2 = CreatePropellantResource(TUG_LH2TANK_MAXIMUM_MASS);
 
 	// Initialise vessel systems
-	systems.push_back(new MainEngine(this, LANTRConfig(),  phLH2Sump, phLO2));
-	systems.push_back(new ReactionControlSystem(this));
+	systems.push_back(mainEngine = new MainEngine(this, config.mainEngineConfig,  phLH2, phLO2));
+	systems.push_back(new ReactionControlSystem(config.rcsConfig, this));
 	systems.push_back(new DockPort(this));
 
 	for (const auto& it : systems) {
@@ -97,6 +105,10 @@ void OrbitalHauler::clbkPreStep(double  simt, double  simdt, double  mjd) {
 	// This should always remain at the beginning of clbkPreStep and never be called anywhere else.
 	eventBroker.processEvents();
 
+}
+
+MainEngine* OrbitalHauler::Powerplant() const {
+	return mainEngine;
 }
 
 

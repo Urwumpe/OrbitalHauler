@@ -1,4 +1,5 @@
 #pragma once
+#include "Oparse.h"
 
 struct ThrusterConfig {
 	double isp;

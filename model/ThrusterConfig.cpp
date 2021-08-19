@@ -11,3 +11,10 @@ OpModelDef ThrusterConfig::GetModelDef() {
 		{ "thrust", { _Param(thrust), { _REQUIRED() } } }
 	};
 }
+
+OpModelDef LANTRConfig::GetModelDef() {
+	return OpModelDef() = {
+		{ "enrichment", { _Param(initialFuelEnrichment), { _REQUIRED() } } },
+		{ "absorption", { _Param(controlDrumAbsorptionEffect), { _REQUIRED() } } }
+	};
+}
