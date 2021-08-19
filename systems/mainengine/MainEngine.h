@@ -11,6 +11,11 @@ const int LANTR_MODE_OFF		= 0;
 const int LANTR_MODE_ELECTRIC	= 100;
 const int LANTR_MODE_NTR		= 200;
 const int LANTR_MODE_LANTR		= 300;
+const int LANTR_MODE_SCRAM		= 1000;
+
+const int LANTR_STATE_ACTIVATE_CONTROLLER = 51;
+const int LANTR_STATE_CONTROLLER_BITE = 52;
+const int LANTR_STATE_NEUTRONDETECTOR_TEST = 53;
 
 const double RATED_THERMAL_POWER = 555.0E6;
 const double RATED_PEAK_TEMPERATURE = 2700.0;
@@ -37,6 +42,13 @@ const double DETECTOR_CONSTANT = DETECTOR_SIZE / pow(DETECTOR_DISTANCE, 2);
 const double NEUTRON_SOURCE_FLUX = 5.0E9;
 
 class OrbitalHauler;
+
+struct REACTOR_ERROR_TYPE {
+	char type;
+	bool confirmed;
+	double mjd;
+	char cause[40];
+};
 
 /* Implementation of a LANTR type main engine
  * There is no throttle function, since there is no need for it. Engine can be either off or 100% on.
@@ -154,6 +166,8 @@ class MainEngine :
 	THRUSTER_HANDLE thLANTR;
 
 	const LANTRConfig &configuration;
+
+	vector<REACTOR_ERROR_TYPE> errorLog;
 public:
 	MainEngine(OrbitalHauler *vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2);
 	~MainEngine();
@@ -199,12 +213,26 @@ public:
 	*/
 	double getCriticality() const;
 
+	const string& getModeAsText() const;
+
+	int getCurrentMode() const;
+
+	void setTargetMode(int mode);
+
+	void scram(char* cause = "USER");
+
+	void logAnomaly(char type, char* cause);
+
+	bool getError(int pos, REACTOR_ERROR_TYPE* entry) const;
+
+	int countErrors() const;
 protected:
 	virtual void receiveEvent(Event_Base* event, EVENTTOPIC topic);
 	void createDefaultPropellantLoad();
 
 	void doAbsorptionReactions(double simt, double simdt);
 	void doDecayReactions(double simt, double simdt);
+	void doController(double simt, double simdt);
 
 	
 };
