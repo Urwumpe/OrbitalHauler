@@ -16,6 +16,9 @@ const int LANTR_MODE_SCRAM		= 1000;
 const int LANTR_STATE_ACTIVATE_CONTROLLER = 51;
 const int LANTR_STATE_CONTROLLER_BITE = 52;
 const int LANTR_STATE_NEUTRONDETECTOR_TEST = 53;
+const int LANTR_STATE_CIRCULATE_COOLANT = 60;
+const int LANTR_STATE_PREHEAT_CORE = 70;
+const int LANTR_STATE_ENTER_CRITICALITY = 90;
 
 const double RATED_THERMAL_POWER = 555.0E6;
 const double RATED_PEAK_TEMPERATURE = 2700.0;
@@ -152,6 +155,11 @@ class MainEngine :
 	 */
 	double tempGammaShield;
 
+	double priLoopOutP;
+	double priLoopInP;
+	double priLoopInT;
+	double priLoopOutT;
+
 	/* Number of absorbed neutrons in this timestep
 	 */
 	double neutronsAbsorbed;
@@ -168,6 +176,30 @@ class MainEngine :
 	const LANTRConfig &configuration;
 
 	vector<REACTOR_ERROR_TYPE> errorLog;
+
+	bool functionInit;
+
+	double timer;
+
+	inline void initTimer(double delay) {
+		if (delay <= 0.0)
+			return;
+
+		if (!functionInit) {
+			timer = delay;
+		}
+	}
+
+	inline bool timerDone() {
+		return (timer == 0.0);
+	}
+	
+	inline void initEnd() {
+		if(!functionInit)
+			functionInit = true;
+	}
+
+	void onTargetGoto(int targetMode, int nextFunction);
 public:
 	MainEngine(OrbitalHauler *vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2);
 	~MainEngine();
@@ -213,6 +245,10 @@ public:
 	*/
 	double getCriticality() const;
 
+	double getPrimaryLoopInP() const;
+	double getPrimaryLoopOutletT() const;
+	double getPrimaryLoopInletT() const;
+
 	const string& getModeAsText() const;
 
 	int getCurrentMode() const;
@@ -220,10 +256,11 @@ public:
 	void setTargetMode(int mode);
 
 	void scram(char* cause = "USER");
+	void downMode(char* cause, int newmode, int entryPoint);
 
 	void logAnomaly(char type, char* cause);
 
-	bool getError(int pos, REACTOR_ERROR_TYPE* entry) const;
+	bool getError(unsigned int pos, REACTOR_ERROR_TYPE* entry) const;
 
 	int countErrors() const;
 protected:

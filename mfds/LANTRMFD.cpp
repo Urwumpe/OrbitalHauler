@@ -69,6 +69,8 @@ const string LABEL_STATE_NEUTRONDETECTOR_TEST = "NEUTRON_DETECTOR_TEST";
 
 bool LANTRMFD::Update(oapi::Sketchpad* sketchpad) {
 	char buffer[250];
+	int baseX2 = GetWidth() / 2;
+
 	Title(sketchpad, "POWERPLANT");
 	sketchpad->SetFont(GetDefaultFont(0));
 	sketchpad->SetTextColor(GetDefaultColour(0));
@@ -89,7 +91,15 @@ bool LANTRMFD::Update(oapi::Sketchpad* sketchpad) {
 	sketchpad->Text(5, 100, buffer, strlen(buffer));
 	sprintf_s(buffer, 250, "TEMP: %06.1f K", engine->getChamberTemperature());
 	sketchpad->Text(5, 120, buffer, strlen(buffer));
+
+	sprintf_s(buffer, 250, "IN P: %06.3f kPa", engine->getPrimaryLoopInP() / 1000.0);
+	sketchpad->Text(baseX2, 80, buffer, strlen(buffer));
+	sprintf_s(buffer, 250, "IN T: %06.3f K", engine->getPrimaryLoopInletT());
+	sketchpad->Text(baseX2, 100, buffer, strlen(buffer));
+
+
 	renderErrorMessages(sketchpad);
+
 	return true;
 }
 
@@ -112,7 +122,7 @@ void LANTRMFD::renderErrorMessages(oapi::Sketchpad* sketchpad) {
 	int baseY = this->GetHeight() - 40;
 	int lines = min(4, engine->countErrors());
 	char buffer[250];
-
+	
 	for (int i = 0; i < lines; i++) {
 		REACTOR_ERROR_TYPE error;
 		if (engine->getError(i, &error)) {

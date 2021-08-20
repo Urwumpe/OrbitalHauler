@@ -245,6 +245,14 @@
     <ClInclude Include="systems\mainengine\MainEngine.h" />
     <ClInclude Include="systems\VesselSystem.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Olog\Olog.vcxproj">
+      <Project>{52f88168-c6b6-42b1-8672-b9332d0ca6d1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Oparse\Oparse.vcxproj">
+      <Project>{b3d8c1da-5dd2-4d34-a04e-8d3059b2dbfa}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

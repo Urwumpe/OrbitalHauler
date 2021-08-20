@@ -20,6 +20,7 @@ MainEngine::MainEngine(OrbitalHauler* vessel, const LANTRConfig &config, PROPELL
 	this->phLH2 = phLH2;
 	this->phLO2 = phLO2;
 	thermalPowerLevel = 0.0;
+	functionInit = false;
 }
 
 MainEngine::~MainEngine() {}
@@ -71,26 +72,56 @@ void MainEngine::doAbsorptionReactions(double simt, double simdt) {
 }
 
 void MainEngine::doController(double simt, double simdt) {
+	if (timer > 0.0) {
+		timer = max(0.0, timer - simdt);
+	}
+
 	switch (currentMode) {
 	case LANTR_MODE_OFF:
 		//Controller is in standby, reduced power demand, only limited measurements
-		if (targetMode == LANTR_MODE_ELECTRIC) {
-			//Perform first step towards operation: Activate controller
-			currentMode = LANTR_STATE_ACTIVATE_CONTROLLER;
-		}
-		return;
+		//If neutron detector senses higher than 5E5 flux, raise an alert
+		onTargetGoto(LANTR_MODE_ELECTRIC, LANTR_STATE_ACTIVATE_CONTROLLER);
+		break;
 	case LANTR_STATE_ACTIVATE_CONTROLLER:
+		onTargetGoto(LANTR_MODE_ELECTRIC, LANTR_STATE_CONTROLLER_BITE);
 		break;
 	case LANTR_STATE_CONTROLLER_BITE:
+		initTimer(5.0);
+		initEnd();
+		if(timerDone()) onTargetGoto(LANTR_MODE_ELECTRIC, LANTR_STATE_NEUTRONDETECTOR_TEST);
 		break;
 	case LANTR_STATE_NEUTRONDETECTOR_TEST:
 		//Verify for 3 seconds, that the measured neutron flux never drops below minimum.
+		initTimer(3.0);
+		initEnd();
+		if(timerDone()) onTargetGoto(LANTR_MODE_ELECTRIC, LANTR_STATE_CIRCULATE_COOLANT);
+		break;
+	case LANTR_STATE_CIRCULATE_COOLANT:
+		//Watchdog timer set to 60 seconds
+		initTimer(60.0);
+		initEnd();
+		//Modulate globe valve to raise pressure in loop
+		if (getPrimaryLoopInP() < 0.25E6) {
+			//Open valve to raise pressure (~ 50 kPa/s)
+		}
+		else {
+			//Close valve
+		}
+		//Open ball valves
+		//Start compressor at low power for ventilation
+
+		//If the coolant loop does not reach conditions for startup in 60 seconds abort the start
+		//Downmode to OFF
+		if (timerDone()) downMode("PRILOOP_FAILURE", LANTR_MODE_OFF, LANTR_MODE_OFF);
+		if(getPrimaryLoopInP() > 0.2E6) 
+			onTargetGoto(LANTR_MODE_ELECTRIC, LANTR_STATE_PREHEAT_CORE);
+		//TODO Might leave some loose ends. Goto downmode entry point. 
+		onTargetGoto(LANTR_MODE_OFF, LANTR_MODE_OFF);
 		break;
 	case LANTR_MODE_SCRAM:
 		break;
 	default:
-		targetMode = LANTR_MODE_SCRAM;
-		//Log cause into reactor error log.
+		scram("ILLEGAL_FUNCTION");
 	}
 }
 
@@ -112,6 +143,18 @@ double MainEngine::getChamberPressure() const {
 	//TODO Implement me
 	return 0.0;
 }
+double MainEngine::getPrimaryLoopInP() const {
+	return priLoopInP;
+}
+
+double MainEngine::getPrimaryLoopOutletT() const {
+	return priLoopOutT;
+}
+
+double MainEngine::getPrimaryLoopInletT() const {
+	return priLoopInT;
+}
+
 
 double MainEngine::getNeutronFlux() const {
 	//Must still get improved a lot
@@ -158,15 +201,30 @@ int MainEngine::getCurrentMode() const {
 void MainEngine::setTargetMode(int mode) {
 	//Check that this is a valid mode change
 	//LANTR_MODE_SCRAM is possible anytime
-	
+	functionInit = false;
 	targetMode = mode;
 }
 
 void MainEngine::scram(char* cause) {
 	if (targetMode != LANTR_MODE_SCRAM) {
+		functionInit = false;
 		targetMode = LANTR_MODE_SCRAM;
 		currentMode = LANTR_MODE_SCRAM;
 		logAnomaly('X', cause);
+	}
+}
+
+void MainEngine::downMode(char* cause, int newMode, int entryPoint) {
+	functionInit = false;
+	targetMode = newMode;
+	currentMode = entryPoint;
+	logAnomaly('E', cause);
+}
+
+void MainEngine::onTargetGoto(int targetMode, int nextFunction) {
+	if (targetMode == this->targetMode) {
+		functionInit = false;
+		currentMode = nextFunction;
 	}
 }
 
@@ -179,7 +237,7 @@ void MainEngine::logAnomaly(char type, char* cause) {
 	errorLog.insert(errorLog.begin(), newAnomaly);
 }
 
-bool MainEngine::getError(int pos, REACTOR_ERROR_TYPE* entry) const {
+bool MainEngine::getError(unsigned int pos, REACTOR_ERROR_TYPE* entry) const {
 	if (pos < errorLog.size()) {
 		*entry = errorLog.at(pos);
 		return true;

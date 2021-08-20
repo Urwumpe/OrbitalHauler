@@ -104,6 +104,9 @@ void OrbitalHauler::clbkPreStep(double  simt, double  simdt, double  mjd) {
 	// Propagate due events.
 	// This should always remain at the beginning of clbkPreStep and never be called anywhere else.
 	eventBroker.processEvents();
+	for (const auto& it : systems) {
+		it->preStep(simt, simdt, mjd);
+	}
 
 }
 
