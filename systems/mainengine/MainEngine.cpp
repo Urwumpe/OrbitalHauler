@@ -20,6 +20,8 @@ MainEngine::MainEngine(OrbitalHauler* vessel, const LANTRConfig &config, PROPELL
 	this->phLH2 = phLH2;
 	this->phLO2 = phLO2;
 	thermalPowerLevel = 0.0;
+	accuMols = 400.0;
+	timer = 0.0;
 	functionInit = false;
 }
 
@@ -57,7 +59,7 @@ void MainEngine::preStep(double simt, double simdt, double mjd) {
 	doAbsorptionReactions(simt, simdt);
 	doDecayReactions(simt, simdt);
 	//Use Newtons Law of cooling for calculating the heat transfers
-	
+	calculatePrimaryLoop(simt, simdt);
 }
 
 void MainEngine::doAbsorptionReactions(double simt, double simdt) {
@@ -136,6 +138,10 @@ double MainEngine::getChamberTemperature() const {
 void MainEngine::doDecayReactions(double simt, double simdt) {
 	//Decay elements in fuel pellets and control drums.
 	//(Maybe include other materials in the core later)
+
+}
+
+void MainEngine::calculatePrimaryLoop(double simt, double simdt) {
 
 }
 

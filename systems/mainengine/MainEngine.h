@@ -159,6 +159,8 @@ class MainEngine :
 	double priLoopInP;
 	double priLoopInT;
 	double priLoopOutT;
+	//Content of the Accumulator in mols (40g / mol -  400 mol in accu at startup)
+	double accuMols;
 
 	/* Number of absorbed neutrons in this timestep
 	 */
@@ -270,7 +272,7 @@ protected:
 	void doAbsorptionReactions(double simt, double simdt);
 	void doDecayReactions(double simt, double simdt);
 	void doController(double simt, double simdt);
-
+	void calculatePrimaryLoop(double simt, double simdt);
 	
 };
 
