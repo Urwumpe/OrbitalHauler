@@ -67,6 +67,8 @@ struct REACTOR_ERROR_TYPE {
 };
 
 struct GasFlow {
+	//specific heat capacity
+	double heatcap;
 	//Temperature
 	double T;
 	//Pressure
@@ -201,8 +203,6 @@ class MainEngine :
 	GasFlow primaryLoop9;
 	//From junction to compressor
 	GasFlow primaryLoop10a;
-	//From junction to compressor
-	GasFlow primaryLoop10a;
 	//From junction to accu charger checkvalve
 	GasFlow primaryLoop10b;
 	//From pressurization globe valve to radiator mixer
@@ -256,6 +256,9 @@ class MainEngine :
 	void onTargetGoto(int targetMode, int nextFunction);
 
 	double heXeCompressorPressureCoeff(double shaftSpeed) const;
+
+
+	void doHeatTransfer(double eff, GasFlow& side1, GasFlow& side2, double simdt);
 public:
 	MainEngine(OrbitalHauler *vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2);
 	~MainEngine();

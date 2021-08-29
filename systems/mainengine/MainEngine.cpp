@@ -154,7 +154,7 @@ double MainEngine::getChamberPressure() const {
 	return 0.0;
 }
 double MainEngine::getPrimaryLoopInP() const {
-	return primaryLoop6.P;
+	return primaryLoop9.P;
 }
 
 double MainEngine::getPrimaryLoopOutletT() const {
@@ -162,7 +162,7 @@ double MainEngine::getPrimaryLoopOutletT() const {
 }
 
 double MainEngine::getPrimaryLoopInletT() const {
-	return primaryLoop6.T;
+	return primaryLoop9.T;
 }
 
 
@@ -263,4 +263,23 @@ int MainEngine::countErrors() const {
 
 double MainEngine::heXeCompressorPressureCoeff(double shaftSpeed) const {
 	return 2.9 * shaftSpeed / HEXE_REFERENCE_RPM;
+}
+
+/*
+* Only steady state right now, no inertia by structural parts/walls
+*/
+void MainEngine::doHeatTransfer(double eff, GasFlow& flow1, GasFlow& flow2, double simdt) {
+	double c1 = flow1.massflow * flow1.heatcap;
+	double c2 = flow2.massflow * flow2.heatcap;
+	double T1 = c1 * flow1.T;
+	double T2 = c2 * flow2.T;
+
+	double dT = T1 - T2;
+
+	T1 = T1 - 0.5 * dT * eff;
+	T2 = T2 + 0.5 * dT * eff;
+
+	flow1.T = T1 / c1;
+	flow2.T = T2 / c2;
+
 }
