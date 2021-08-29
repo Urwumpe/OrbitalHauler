@@ -7,6 +7,8 @@ using namespace std;
 #include "systems/VesselSystem.h"
 #include "event/Events.h"
 
+const double RPM = 2.0 * PI / 60.0;
+
 const int LANTR_MODE_OFF		= 0;
 const int LANTR_MODE_ELECTRIC	= 100;
 const int LANTR_MODE_NTR		= 200;
@@ -24,8 +26,14 @@ const double RATED_THERMAL_POWER = 555.0E6;
 const double RATED_PEAK_TEMPERATURE = 2700.0;
 
 const double HEXE_MOLAR_MASS = 40.0;
+//Assumption: Monoatomic gas
+const double HEXE_GAMMA = 5.0 / 3.0;
 //Standard heat capacity of HeXe coolant in J/kg
 const double HEXE_HEATCAPACITY_PER_MASS = 14304.0;		
+
+
+
+const double HEXE_REFERENCE_RPM = 53000.0 * RPM;
 
 /* Maximum pressure at which the Brayton cycle hardware operates. 
  * At higher chamber pressure, the valves are closed and the Brayton cycle powered only 
@@ -44,6 +52,11 @@ const double DETECTOR_CONSTANT = DETECTOR_SIZE / pow(DETECTOR_DISTANCE, 2);
 //Create a weak neutron flux with a neutron source
 const double NEUTRON_SOURCE_FLUX = 5.0E9;
 
+//TODO: Scale that it fits "real"-world values better.
+const double PRIMARY_LOOP_VOLUME = 2.0;
+//Primary loop compressor diameter - 13 cm in reference model.
+const double PRIMARY_LOOP_COMP_DIAMETER = 0.13;
+
 class OrbitalHauler;
 
 struct REACTOR_ERROR_TYPE {
@@ -51,6 +64,15 @@ struct REACTOR_ERROR_TYPE {
 	bool confirmed;
 	double mjd;
 	char cause[40];
+};
+
+struct GasFlow {
+	//Temperature
+	double T;
+	//Pressure
+	double P;		
+	//Mass flow (kg/s)
+	double massflow;
 };
 
 /* Implementation of a LANTR type main engine
@@ -155,12 +177,42 @@ class MainEngine :
 	 */
 	double tempGammaShield;
 
-	double priLoopOutP;
-	double priLoopInP;
-	double priLoopInT;
-	double priLoopOutT;
+	//From reactor to NTR mode heat exchanger
+	GasFlow primaryLoop1;
+	//From NTR mode heat exchanger to turbine bypass valve
+	GasFlow primaryLoop2; 
+	//From turbine bypass to turbine
+	GasFlow primaryLoop3a;
+	//From turbine bypass to turbine mixer
+	GasFlow primaryLoop3b;
+	//From turbine to turbine mixer
+	GasFlow primaryLoop4a;
+	//From turbine mixer to radiator bypass valve
+	GasFlow primaryLoop5;
+	//From radiator bypass to radiator
+	GasFlow primaryLoop6a;
+	//From radiatior bypass to radiator mixer
+	GasFlow primaryLoop6b;
+	//From radiator to radiator mixer
+	GasFlow primaryLoop7;
+	//From radiator mixer to compressor
+	GasFlow primaryLoop8;
+	//From compressor to junction
+	GasFlow primaryLoop9;
+	//From junction to compressor
+	GasFlow primaryLoop10a;
+	//From junction to compressor
+	GasFlow primaryLoop10a;
+	//From junction to accu charger checkvalve
+	GasFlow primaryLoop10b;
+	//From pressurization globe valve to radiator mixer
+	GasFlow primaryLoop11;
 	//Content of the Accumulator in mols (40g / mol -  400 mol in accu at startup)
 	double accuMols;
+
+	double primaryLoopMols;
+
+	double shaftSpeed; // (rad / s)
 
 	/* Number of absorbed neutrons in this timestep
 	 */
@@ -202,6 +254,8 @@ class MainEngine :
 	}
 
 	void onTargetGoto(int targetMode, int nextFunction);
+
+	double heXeCompressorPressureCoeff(double shaftSpeed) const;
 public:
 	MainEngine(OrbitalHauler *vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2);
 	~MainEngine();

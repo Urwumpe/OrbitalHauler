@@ -10,16 +10,13 @@
 
 
 
-
-
-
-
 MainEngine::MainEngine(OrbitalHauler* vessel, const LANTRConfig &config, PROPELLANT_HANDLE phLH2, PROPELLANT_HANDLE phLO2) : VesselSystem(vessel), configuration(config) {
 	targetMode = LANTR_MODE_OFF;
 	currentMode = LANTR_MODE_OFF;
 	this->phLH2 = phLH2;
 	this->phLO2 = phLO2;
 	thermalPowerLevel = 0.0;
+	shaftSpeed = 0.0;
 	accuMols = 400.0;
 	timer = 0.0;
 	functionInit = false;
@@ -142,7 +139,14 @@ void MainEngine::doDecayReactions(double simt, double simdt) {
 }
 
 void MainEngine::calculatePrimaryLoop(double simt, double simdt) {
-
+	//First step: Calculate flow resistance
+	//Assume it to be zero initially.
+	double loopDensity = HEXE_MOLAR_MASS * primaryLoopMols  / PRIMARY_LOOP_VOLUME;
+	//Simplified function: In reality more complicated
+	double totalMassFlow = loopDensity * shaftSpeed * PRIMARY_LOOP_COMP_DIAMETER / HEXE_REFERENCE_RPM;
+	primaryLoop5.massflow = totalMassFlow;
+	primaryLoop5.P = heXeCompressorPressureCoeff(shaftSpeed) * primaryLoop4a.P;
+	primaryLoop5.T = pow(heXeCompressorPressureCoeff(shaftSpeed), HEXE_GAMMA / (HEXE_GAMMA-1.0)) * primaryLoop4a.T;
 }
 
 double MainEngine::getChamberPressure() const {
@@ -150,15 +154,15 @@ double MainEngine::getChamberPressure() const {
 	return 0.0;
 }
 double MainEngine::getPrimaryLoopInP() const {
-	return priLoopInP;
+	return primaryLoop6.P;
 }
 
 double MainEngine::getPrimaryLoopOutletT() const {
-	return priLoopOutT;
+	return primaryLoop1.T;
 }
 
 double MainEngine::getPrimaryLoopInletT() const {
-	return priLoopInT;
+	return primaryLoop6.T;
 }
 
 
@@ -255,4 +259,8 @@ bool MainEngine::getError(unsigned int pos, REACTOR_ERROR_TYPE* entry) const {
 
 int MainEngine::countErrors() const {
 	return errorLog.size();
+}
+
+double MainEngine::heXeCompressorPressureCoeff(double shaftSpeed) const {
+	return 2.9 * shaftSpeed / HEXE_REFERENCE_RPM;
 }
